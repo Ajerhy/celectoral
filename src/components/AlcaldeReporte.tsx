@@ -122,7 +122,7 @@ export default function ChartsSection() {
   );
 
   const totalGeneral = totals.fsutpc + totals.libre + totals.upp + totals.mts + totals.sumate + totals.aupp + totals.ngp + totals.fri + totals.mnr + totals.mda + totals.blancos + totals.nulos;
-
+/*
   const toPercent = (value: number, total: number) =>
     total > 0 ? Math.round((value / total) * 100) : 0;
 
@@ -130,6 +130,14 @@ export default function ChartsSection() {
     showPercent && total && total > 0
       ? `${toPercent(value, total)}%`
       : value.toLocaleString();
+*/
+const toPercent = (value: number, total: number) =>
+  total > 0 ? parseFloat(((value / total) * 100).toFixed(2)) : 0;
+
+const displayValue = (value: number, total?: number) =>
+  showPercent && total && total > 0
+    ? `${toPercent(value, total).toFixed(2)}%`
+    : value.toLocaleString();
 
   const tooltipCallback = {
     callbacks: {
@@ -164,7 +172,7 @@ const pieOption: ChartOptions<"pie"> = {
         const dataArr = ctx.chart.data.datasets[0].data as number[];
         const total = dataArr.reduce((acc, val) => acc + val, 0);
         if (total === 0 || value === 0) return "";  // ocultar ceros
-        const percentage = ((value * 100) / total).toFixed(1) + "%";
+        const percentage = ((value * 100) / total).toFixed(2) + "%";
         return showPercent
           ? percentage                   // solo porcentaje
           : `${value}\n${percentage}`;   // votos + porcentaje
@@ -187,7 +195,7 @@ const pieOption: ChartOptions<"pie"> = {
       formatter: (value: number) =>
         value > 0
           ? showPercent
-            ? `${value.toFixed(1)}%`
+            ? `${value.toFixed(2)}%`
             : `${value}`
           : "",
     },
