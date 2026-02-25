@@ -24,6 +24,15 @@ npm start
 npm run dev
 npm run build
 
+npm install gh-pages
+
+npm run deploy
+****
+dar error eliminar node modules
+npm install
+npm run deploy
+
+
 ALCALDE
 /* https://docs.google.com/spreadsheets/d/1soGygtdKplYlNnf1d4bjeb4F-QH0I8EnCgKejgvhbqc/edit?usp=sharing */
 https://opensheet.elk.sh/1soGygtdKplYlNnf1d4bjeb4F-QH0I8EnCgKejgvhbqc/RESULTADO
