@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,6 +13,9 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import type { ChartOptions } from "chart.js";
 import { Bar, Pie } from "react-chartjs-2";
 import { BarChart3, RefreshCw, Percent, Hash } from "lucide-react";
+
+import CobijaPie from "./CobijaPie";
+import CobijaBarra from "./CobijaBarra";
 
 ChartJS.register(
   CategoryScale,
@@ -49,15 +52,14 @@ export default function ChartsSection() {
   const [showPercent, setShowPercent] = useState(false);
   const [chartKey, setChartKey] = useState(0);
 
-  const fetchData = async () => {
+  /*const fetchData = async (*/
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    var apiUrl: string = `https://opensheet.elk.sh/1soGygtdKplYlNnf1d4bjeb4F-QH0I8EnCgKejgvhbqc/RESULTADO`;
+    var apiUrl = `https://opensheet.elk.sh/1soGygtdKplYlNnf1d4bjeb4F-QH0I8EnCgKejgvhbqc/RESULTADO`;
     try {
-      const response = await fetch(
-        apiUrl
-      );
+      const response = await fetch(apiUrl);
       if (!response.ok) throw new Error("Error al cargar datos");
 
       const jsonData = await response.json();
@@ -79,7 +81,7 @@ export default function ChartsSection() {
           nulos: Number(row.NULOS) || 0,
         }));
 
-        console.log("Datos formateados:", formattedData);
+      /*console.log("Datos formateados:", formattedData);*/
 
       if (formattedData.length === 0)
         throw new Error("No se encontraron recintos.");
@@ -87,42 +89,100 @@ export default function ChartsSection() {
       setData(formattedData);
     } catch (err: any) {
       console.error(err);
-      setError("Error cargando datos desde Google Sheets. Usando datos de ejemplo.",);
+      setError(
+        "Error cargando datos desde Google Sheets. Usando datos de ejemplo.",
+      );
       setData([
-        { recinto: "U. E. Manuela Rojas", fsutpc: 400, libre: 350, upp: 25, mts: 50, sumate: 35, aupp: 50, ngp: 50, fri: 50, mnr: 50, mda: 250, blancos: 20, nulos: 10},
-        { recinto: "U. E. Simon Bolivar", fsutpc: 400, libre: 350, upp: 25, mts: 50, sumate: 35, aupp: 50, ngp: 50, fri: 50, mnr: 50, mda: 250, blancos: 20, nulos: 10},
+        {
+          recinto: "U. E. Manuela Rojas",
+          fsutpc: 400,
+          libre: 350,
+          upp: 25,
+          mts: 50,
+          sumate: 35,
+          aupp: 50,
+          ngp: 50,
+          fri: 50,
+          mnr: 50,
+          mda: 250,
+          blancos: 20,
+          nulos: 10,
+        },
+        {
+          recinto: "U. E. Simon Bolivar",
+          fsutpc: 400,
+          libre: 350,
+          upp: 25,
+          mts: 50,
+          sumate: 35,
+          aupp: 50,
+          ngp: 50,
+          fri: 50,
+          mnr: 50,
+          mda: 250,
+          blancos: 20,
+          nulos: 10,
+        },
       ]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   // Totales seguros
-  const totals = data.reduce(
-    (acc, curr) => {
-      acc.fsutpc += Number(curr.fsutpc) || 0;
-      acc.libre += Number(curr.libre) || 0;
-      acc.upp += Number(curr.upp) || 0;
-      acc.mts += Number(curr.mts) || 0;
-      acc.sumate += Number(curr.sumate) || 0;
-      acc.aupp += Number(curr.aupp) || 0;
-      acc.ngp += Number(curr.ngp) || 0;
-      acc.fri += Number(curr.fri) || 0;
-      acc.mnr += Number(curr.mnr) || 0;
-      acc.mda += Number(curr.mda) || 0;
-      acc.blancos += Number(curr.blancos) || 0;
-      acc.nulos += Number(curr.nulos) || 0;
-      return acc;
-    },
-    {fsutpc:0 ,libre:0 ,upp:0 ,mts:0 ,sumate:0 ,aupp:0 ,ngp:0 ,fri:0 ,mnr:0 ,mda:0 ,blancos:0 ,nulos:0},
+  /*
+  ), [data]);*/
+  /*const totals = data.reduce(*/
+  const totals = useMemo(
+    () =>
+      data.reduce(
+        (acc, curr) => {
+          acc.fsutpc += Number(curr.fsutpc) || 0;
+          acc.libre += Number(curr.libre) || 0;
+          acc.upp += Number(curr.upp) || 0;
+          acc.mts += Number(curr.mts) || 0;
+          acc.sumate += Number(curr.sumate) || 0;
+          acc.aupp += Number(curr.aupp) || 0;
+          acc.ngp += Number(curr.ngp) || 0;
+          acc.fri += Number(curr.fri) || 0;
+          acc.mnr += Number(curr.mnr) || 0;
+          acc.mda += Number(curr.mda) || 0;
+          acc.blancos += Number(curr.blancos) || 0;
+          acc.nulos += Number(curr.nulos) || 0;
+          return acc;
+        },
+        {
+          fsutpc: 0,
+          libre: 0,
+          upp: 0,
+          mts: 0,
+          sumate: 0,
+          aupp: 0,
+          ngp: 0,
+          fri: 0,
+          mnr: 0,
+          mda: 0,
+          blancos: 0,
+          nulos: 0,
+        },
+      ),
+    [data],
   );
 
+  /*
   const totalGeneral = totals.fsutpc + totals.libre + totals.upp + totals.mts + totals.sumate + totals.aupp + totals.ngp + totals.fri + totals.mnr + totals.mda + totals.blancos + totals.nulos;
-/*
+  */
+
+  const totalGeneral = useMemo(
+    () => Object.values(totals).reduce((a, b) => a + b, 0),
+    [totals],
+  );
+
+  /*
   const toPercent = (value: number, total: number) =>
     total > 0 ? Math.round((value / total) * 100) : 0;
 
@@ -131,13 +191,13 @@ export default function ChartsSection() {
       ? `${toPercent(value, total)}%`
       : value.toLocaleString();
 */
-const toPercent = (value: number, total: number) =>
-  total > 0 ? parseFloat(((value / total) * 100).toFixed(2)) : 0;
+  const toPercent = (value: number, total: number) =>
+    total > 0 ? parseFloat(((value / total) * 100).toFixed(2)) : 0;
 
-const displayValue = (value: number, total?: number) =>
-  showPercent && total && total > 0
-    ? `${toPercent(value, total).toFixed(2)}%`
-    : value.toLocaleString();
+  const displayValue = (value: number, total?: number) =>
+    showPercent && total && total > 0
+      ? `${toPercent(value, total).toFixed(2)}%`
+      : value.toLocaleString();
 
   const tooltipCallback = {
     callbacks: {
@@ -148,7 +208,7 @@ const displayValue = (value: number, total?: number) =>
     },
   };
 
-/*
+  /*
   const chartOption = {
     responsive: true,
     maintainAspectRatio: false,
@@ -159,6 +219,31 @@ const displayValue = (value: number, total?: number) =>
   };
 */
 
+  const pieOption = useMemo<ChartOptions<"pie">>(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: "bottom" },
+        datalabels: {
+          color: "#000000",
+          font: { size: 11, weight: "bold" },
+          formatter: (value: number, ctx) => {
+            // Calcular el total sumando todos los valores del dataset
+            const dataArr = ctx.chart.data.datasets[0].data as number[];
+            const total = dataArr.reduce((acc, val) => acc + val, 0);
+            if (total === 0 || value === 0) return ""; // ocultar ceros
+            const percentage = ((value * 100) / total).toFixed(2) + "%";
+            return showPercent
+              ? percentage // solo porcentaje
+              : `${value}\n${percentage}`; // votos + porcentaje
+          },
+        },
+      },
+    }),
+    [showPercent],
+  );
+  /*
 const pieOption: ChartOptions<"pie"> = {
   responsive: true,
   maintainAspectRatio: false,
@@ -180,7 +265,41 @@ const pieOption: ChartOptions<"pie"> = {
     },
   },
 };
+*/
+  const chartOptions = useMemo<ChartOptions<"bar">>(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          anchor: "end",
+          align: "end",
+          offset: 2,
+          font: { size: 9, weight: "bold" },
+          color: "#333",
+          formatter: (value: number) =>
+            value > 0
+              ? showPercent
+                ? `${value.toFixed(2)}%`
+                : `${value}`
+              : "",
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grace: "15%",
+          ticks: {
+            callback: (val) => (showPercent ? `${val}%` : val),
+          },
+        },
+      },
+    }),
+    [showPercent],
+  );
 
+  /*
   const chartOptions: ChartOptions<"bar"> = {
   responsive: true,
   maintainAspectRatio: false,
@@ -210,13 +329,27 @@ const pieOption: ChartOptions<"pie"> = {
     },
   },
 };
+*/
 
   const pieGeneralData = {
-    labels: ["FSUTPC","LIBRE","UPP","MTS","SUMATE","AUPP","NGP","FRI","MNR","MDA","BLANCOS","NULOS"],
+    labels: [
+      "FSUTPC",
+      "LIBRE",
+      "UPP",
+      "MTS",
+      "SUMATE",
+      "AUPP",
+      "NGP",
+      "FRI",
+      "MNR",
+      "MDA",
+      "BLANCOS",
+      "NULOS",
+    ],
     datasets: [
       {
         data: showPercent
-          ? [              
+          ? [
               toPercent(totals.fsutpc, totalGeneral),
               toPercent(totals.libre, totalGeneral),
               toPercent(totals.upp, totalGeneral),
@@ -230,8 +363,34 @@ const pieOption: ChartOptions<"pie"> = {
               toPercent(totals.blancos, totalGeneral),
               toPercent(totals.nulos, totalGeneral),
             ]
-          : [totals.fsutpc, totals.libre, totals.upp, totals.mts, totals.sumate, totals.aupp, totals.ngp, totals.fri, totals.mnr, totals.mda, totals.blancos, totals.nulos],
-        backgroundColor: ["#5c9743","#E11D48","#025744","#006d36","#5e2572","#663d2b","#16a7e0","#014995","#ff84b0","#fcbf28","#ffffff","#777777"],
+          : [
+              totals.fsutpc,
+              totals.libre,
+              totals.upp,
+              totals.mts,
+              totals.sumate,
+              totals.aupp,
+              totals.ngp,
+              totals.fri,
+              totals.mnr,
+              totals.mda,
+              totals.blancos,
+              totals.nulos,
+            ],
+        backgroundColor: [
+          "#5c9743",
+          "#E11D48",
+          "#025744",
+          "#006d36",
+          "#5e2572",
+          "#663d2b",
+          "#16a7e0",
+          "#014995",
+          "#ff84b0",
+          "#fcbf28",
+          "#ffffff",
+          "#777777",
+        ],
         borderWidth: 3,
         borderColor: "#F9FAFB",
       },
@@ -249,7 +408,7 @@ const pieOption: ChartOptions<"pie"> = {
 
   return (
     /* className="py-12 bg-gradient-to-b from-gray-50 via-white to-gray-100 */
-    <section className="py- bg-gradient-to-b from-gray-50 via-white to-gray-100">
+    <section className="py-8 bg-gradient-to-b from-gray-50 via-white to-gray-100">
       <div className="container mx-auto px-3 md:px-8">
         {/* Encabezado text-center mb-12 */}
         <div className="text-center mb-4">
@@ -267,11 +426,17 @@ const pieOption: ChartOptions<"pie"> = {
             <button
               onClick={fetchData}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#416972] to-[#5f8a8d] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition disabled:opacity-50">
-              <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}/>
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#416972] to-[#5f8a8d] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
+              />
               Actualizar Datos
             </button>
-            <button onClick={handleTogglePercent} className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-[#416972] text-[#416972] font-semibold rounded-lg hover:bg-[#416972]/10 transition">
+            <button
+              onClick={handleTogglePercent}
+              className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-[#416972] text-[#416972] font-semibold rounded-lg hover:bg-[#416972]/10 transition"
+            >
               {showPercent ? (
                 <Hash className="w-5 h-5" />
               ) : (
@@ -303,7 +468,9 @@ const pieOption: ChartOptions<"pie"> = {
               {/* FSUTPC,LIBRE,UPP,MTS,APB-SUMATE,AUPP,NGP,FRI,MNR,MDA */}
               <div className="grid grid-cols-2 md:grid-cols-6 gap-5 text-center">
                 <div className="p-4 bg-[#5c9743]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#5c9743]">FSUTPC</h4>
+                  <h4 className="text-lg font-semibold text-[#5c9743]">
+                    FSUTPC
+                  </h4>
                   <p className="text-3xl font-bold text-[#5c9743] mt-1">
                     {displayValue(totals.fsutpc, totalGeneral)}
                   </p>
@@ -331,7 +498,9 @@ const pieOption: ChartOptions<"pie"> = {
                 </div>
 
                 <div className="p-6 bg-[#5e2572]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#5e2572]">SUMATE</h4>
+                  <h4 className="text-lg font-semibold text-[#5e2572]">
+                    SUMATE
+                  </h4>
                   <p className="text-3xl font-bold text-[#5e2572] mt-1">
                     {displayValue(totals.sumate, totalGeneral)}
                   </p>
@@ -373,7 +542,9 @@ const pieOption: ChartOptions<"pie"> = {
                 </div>
 
                 <div className="p-4 bg-[#000000]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#000000]">BLANCO</h4>
+                  <h4 className="text-lg font-semibold text-[#000000]">
+                    BLANCO
+                  </h4>
                   <p className="text-3xl font-bold text-[#000000] mt-1">
                     {displayValue(totals.blancos, totalGeneral)}
                   </p>
@@ -388,49 +559,102 @@ const pieOption: ChartOptions<"pie"> = {
               </div>
             </div>
 
-            {/* Torta general */}
-            <div className="bg-white/80 rounded-2xl shadow-lg p-8 mb-12">
-              <h3 className="text-2xl font-bold text-[#416972] mb-6 text-center">
-                Distribución Total
-              </h3>
-              <div className="flex justify-center">
-                <div className="w-full md:w-1/2 h-[300px] md:h-80">
-                  <Pie key={chartKey} data={pieGeneralData} options={pieOption} plugins={[ChartDataLabels]}/>
-                  {/* <Pie key={chartKey} data={pieGeneralData} options={chartOption}/> */}
-                </div>
-              </div>
-            </div>
-            
+            {/* TORTA */}
+            <CobijaPie
+              totals={totals}
+              totalGeneral={totalGeneral}
+              showPercent={showPercent}
+              chartKey={chartKey}
+            />
+            {/* BARRA */}
+            <CobijaBarra
+              totals={totals}
+              totalGeneral={totalGeneral}
+              showPercent={showPercent}
+              chartKey={chartKey}
+            />
+
             {/* Comparación por provincia */}
             <h3 className="text-2xl font-bold text-[#416972] mb-8 text-center">
               Comparación por Recintos en Municipio Cobija
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
               {data.map((prov, i) => {
-                const totalProv = prov.fsutpc + prov.libre + prov.upp + prov.mts + prov.sumate + prov.aupp + prov.ngp + prov.fri + prov.mnr + prov.mda + prov.blancos + prov.nulos;
+                const totalProv =
+                  prov.fsutpc +
+                  prov.libre +
+                  prov.upp +
+                  prov.mts +
+                  prov.sumate +
+                  prov.aupp +
+                  prov.ngp +
+                  prov.fri +
+                  prov.mnr +
+                  prov.mda +
+                  prov.blancos +
+                  prov.nulos;
                 const values = showPercent
                   ? [
-                    toPercent(prov.fsutpc, totalProv),
-                    toPercent(prov.libre, totalProv),
-                    toPercent(prov.upp, totalProv),
-                    toPercent(prov.mts, totalProv),
-                    toPercent(prov.sumate, totalProv),
-                    toPercent(prov.aupp, totalProv),
-                    toPercent(prov.ngp, totalProv),
-                    toPercent(prov.fri, totalProv),
-                    toPercent(prov.mnr, totalProv),
-                    toPercent(prov.mda, totalProv),
-                    toPercent(prov.blancos, totalProv),
-                    toPercent(prov.nulos, totalProv),
+                      toPercent(prov.fsutpc, totalProv),
+                      toPercent(prov.libre, totalProv),
+                      toPercent(prov.upp, totalProv),
+                      toPercent(prov.mts, totalProv),
+                      toPercent(prov.sumate, totalProv),
+                      toPercent(prov.aupp, totalProv),
+                      toPercent(prov.ngp, totalProv),
+                      toPercent(prov.fri, totalProv),
+                      toPercent(prov.mnr, totalProv),
+                      toPercent(prov.mda, totalProv),
+                      toPercent(prov.blancos, totalProv),
+                      toPercent(prov.nulos, totalProv),
                     ]
-                  : [prov.fsutpc,prov.libre,prov.upp,prov.mts,prov.sumate,prov.aupp,prov.ngp,prov.fri,prov.mnr,prov.mda,prov.blancos,prov.nulos]
-                const barData = {                  
-                  labels: ["FSUTPC", "LIBRE", "UPP", "MTS", "SUMATE", "AUPP", "NGP", "FRI", "MNR", "MDA", "BLANCO", "NULO"],
+                  : [
+                      prov.fsutpc,
+                      prov.libre,
+                      prov.upp,
+                      prov.mts,
+                      prov.sumate,
+                      prov.aupp,
+                      prov.ngp,
+                      prov.fri,
+                      prov.mnr,
+                      prov.mda,
+                      prov.blancos,
+                      prov.nulos,
+                    ];
+                const barData = {
+                  labels: [
+                    "FSUTPC",
+                    "LIBRE",
+                    "UPP",
+                    "MTS",
+                    "SUMATE",
+                    "AUPP",
+                    "NGP",
+                    "FRI",
+                    "MNR",
+                    "MDA",
+                    "BLANCO",
+                    "NULO",
+                  ],
                   datasets: [
                     {
                       label: prov.recinto,
                       data: values,
-                      backgroundColor: ["#5c9743","#E11D48","#025744","#006d36","#5e2572","#663d2b","#16a7e0","#014995","#ff84b0","#fcbf28","#dbd2d2","#777777"],
+                      backgroundColor: [
+                        "#5c9743",
+                        "#E11D48",
+                        "#025744",
+                        "#006d36",
+                        "#5e2572",
+                        "#663d2b",
+                        "#16a7e0",
+                        "#014995",
+                        "#ff84b0",
+                        "#fcbf28",
+                        "#dbd2d2",
+                        "#777777",
+                      ],
                     },
                   ],
                 };
@@ -444,13 +668,16 @@ const pieOption: ChartOptions<"pie"> = {
                       {prov.recinto}
                     </h4>
                     <div className="h-[300px] md:h-72">
-                      <Bar data={barData} options={chartOptions} plugins={[ChartDataLabels]} />
+                      <Bar
+                        data={barData}
+                        options={chartOptions}
+                        plugins={[ChartDataLabels]}
+                      />
                     </div>
                   </div>
                 );
               })}
             </div>
-
           </>
         )}
       </div>

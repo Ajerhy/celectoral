@@ -32,6 +32,9 @@ dar error eliminar node modules
 npm install
 npm run deploy
 
+npx -y react-doctor
+
+
 ALCALDE
 /* https://docs.google.com/spreadsheets/d/1soGygtdKplYlNnf1d4bjeb4F-QH0I8EnCgKejgvhbqc/edit?usp=sharing */
 https://opensheet.elk.sh/1soGygtdKplYlNnf1d4bjeb4F-QH0I8EnCgKejgvhbqc/RESULTADO
@@ -40,3 +43,9 @@ CONSEJAL
 /* https://docs.google.com/spreadsheets/d/1VE-roYCzeG-ZnbflnJF8Dj1ai3I3FSJcBLj619UhfQU/edit?usp=sharing */
 
 https://opensheet.elk.sh/1VE-roYCzeG-ZnbflnJF8Dj1ai3I3FSJcBLj619UhfQU/RESULTADO
+
+
+GOBERNACION
+/* https://docs.google.com/spreadsheets/d/1nZ1Zv3wLNY7szammACRPhm2NqcxeAJ3b6GuoALHUby0/edit?usp=sharing */
+
+https://opensheet.elk.sh/1nZ1Zv3wLNY7szammACRPhm2NqcxeAJ3b6GuoALHUby0/RESULTADO

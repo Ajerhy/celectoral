@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { FaUserTie, FaUsers } from "react-icons/fa";
+import { FaUserTie, FaUsers, FaUserFriends, FaUserTag   } from "react-icons/fa";
 import { FaCircleUser } from "react-icons/fa6";
 import { IoPeopleCircle } from "react-icons/io5";
 
 const navItems = [
-  { id: "alcalde",  label: "Reporte Alcalde",   icon: <FaUserTie /> },
-  { id: "concejal", label: "Reporte Concejal",  icon: <FaUsers /> },
+  { id: "alcalde",  label: "Alcaldia",   icon: <FaUserTie /> },
+  { id: "concejal", label: "Concejal",  icon: <FaUsers /> },
+  { id: "gobernacion", label: "Gobernacion",  icon: <FaUserFriends  /> },
+  { id: "asambleistasterritorio", label: "Asambleístas por Territorio",  icon: <FaUserTag  /> },
 ];
 
 interface NavProps {

@@ -14,6 +14,9 @@ import type { ChartOptions } from "chart.js";
 import { Bar, Pie } from "react-chartjs-2";
 import { BarChart3, RefreshCw, Percent, Hash } from "lucide-react";
 
+import CobijaPie from "./CobijaPie";
+import CobijaBarra from "./CobijaBarra";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -392,19 +395,20 @@ const pieOption: ChartOptions<"pie"> = {
               </div>
             </div>
 
-            {/* Torta general */}
-            <div className="bg-white/80 rounded-2xl shadow-lg p-8 mb-12">
-              <h3 className="text-2xl font-bold text-[#416972] mb-6 text-center">
-                Distribución Total
-              </h3>
-              <div className="flex justify-center">
-                <div className="w-full md:w-1/2 h-[300px] md:h-80">
-                  <Pie key={chartKey} data={pieGeneralData} options={pieOption} plugins={[ChartDataLabels]}/>
-                  {/* <Pie key={chartKey} data={pieGeneralData} options={chartOption}/> */}
-                </div>
-              </div>
-            </div>
-            
+                        {/* TORTA */}
+                        <CobijaPie
+                          totals={totals}
+                          totalGeneral={totalGeneral}
+                          showPercent={showPercent}
+                          chartKey={chartKey}
+                        />
+                        {/* BARRA */}
+                        <CobijaBarra
+                          totals={totals}
+                          totalGeneral={totalGeneral}
+                          showPercent={showPercent}
+                          chartKey={chartKey}
+                        />
             
             
             
