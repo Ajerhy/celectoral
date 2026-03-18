@@ -7,9 +7,8 @@ const navItems = [
   { id: "alcalde",  label: "Alcaldia",   icon: <FaUserTie /> },
   { id: "concejal", label: "Concejal",  icon: <FaUsers /> },
   { id: "gobernacion", label: "Gobernacion",  icon: <FaUserFriends  /> },
-  {/* id: "asambleistasterritorio", label: "Asambleístas por Territorio",  icon: <FaUserTag  /> */},
 ];
-
+{/* id: "asambleistasterritorio", label: "Asambleístas por Territorio",  icon: <FaUserTag  /> */}
 interface NavProps {
   onSelect: (id: string) => void;
   active: string;
