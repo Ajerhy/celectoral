@@ -7,6 +7,7 @@ import ChartsReporte from './components/ChartsReporte'
 import SocialSection from './components/SocialSection'
 import ConcejalReporte from './components/ConcejalReporte'
 import AlcaldeReporte from './components/AlcaldeReporte'
+import GobiernacionReporte from './components/GobiernacionReporte'
 
 import Footer from './components/Footer'
 import './App.css'
@@ -51,6 +52,9 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {seccion === "alcalde"  && <AlcaldeReporte />}   {/* ✅ */}
         {seccion === "concejal" && <ConcejalReporte />}  {/* ✅ */}
+        {seccion === "gobernacion" && <GobiernacionReporte />}  {/* ✅ */}
+
+
       </main>
 
       <SocialSection />
