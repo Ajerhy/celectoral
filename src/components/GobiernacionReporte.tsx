@@ -447,7 +447,8 @@ const pieOption: ChartOptions<"pie"> = {
                 Resumen General
               </h3>
               {/* FSUTPC,LIBRE,UPP,MTS,APB-SUMATE,AUPP,NGP,FRI,MNR,MDA */}
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-5 text-center">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-5 text-center">
+
                 <div className="p-6 bg-[#025744]/10 rounded-xl">
                   <h4 className="text-lg font-semibold text-[#025744]">UPP</h4>
                   <p className="text-3xl font-bold text-[#025744] mt-1">
@@ -485,9 +486,7 @@ const pieOption: ChartOptions<"pie"> = {
                   </p>
                 </div>
                 <div className="p-4 bg-[#5c9743]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#5c9743]">
-                    FSUTPC
-                  </h4>
+                  <h4 className="text-lg font-semibold text-[#5c9743]">FSUTPC</h4>
                   <p className="text-3xl font-bold text-[#5c9743] mt-1">
                     {displayValue(totals.fsutpc, totalGeneral)}
                   </p>
@@ -499,9 +498,7 @@ const pieOption: ChartOptions<"pie"> = {
                   </p>
                 </div>
                 <div className="p-4 bg-[#000000]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#000000]">
-                    BLANCO
-                  </h4>
+                  <h4 className="text-lg font-semibold text-[#000000]">BLANCO</h4>
                   <p className="text-3xl font-bold text-[#000000] mt-1">
                     {displayValue(totals.blancos, totalGeneral)}
                   </p>
@@ -513,6 +510,7 @@ const pieOption: ChartOptions<"pie"> = {
                     {displayValue(totals.nulos, totalGeneral)}
                   </p>
                 </div>
+
               </div>
             </div>
 
