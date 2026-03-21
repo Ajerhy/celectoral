@@ -121,7 +121,7 @@ export default function BarGeneral({
   return (
     <div className="bg-white/80 rounded-2xl shadow-lg p-6 mb-8">
       <h3 className="text-2xl font-bold text-[#416972] mb-6 text-center">
-        Distribución en Barra
+        Votos Generales
       </h3>
       <div className="w-full h-[350px] md:h-[300px]">
         <Bar

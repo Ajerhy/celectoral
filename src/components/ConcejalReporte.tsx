@@ -16,6 +16,7 @@ import { BarChart3, RefreshCw, Percent, Hash } from "lucide-react";
 
 import CobijaPie from "./CobijaPie";
 import CobijaBarra from "./CobijaBarra";
+import CobijaConcejales from "./CobijaConcejales";
 
 ChartJS.register(
   CategoryScale,
@@ -41,6 +42,7 @@ interface ElectoralData {
   mda: number;
   blancos: number;
   nulos: number;
+  porcentaje: number;
 }
 
 export default function ChartsSection() {
@@ -51,19 +53,24 @@ export default function ChartsSection() {
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [showPercent, setShowPercent] = useState(false);
   const [chartKey, setChartKey] = useState(0);
+  const [porTotal, setPorTotal] = useState<number>(0);
 
   const fetchData = async () => {
     setLoading(true);
     setError(null);
 
-    var apiUrl: string = `https://opensheet.elk.sh/1VE-roYCzeG-ZnbflnJF8Dj1ai3I3FSJcBLj619UhfQU/RESULTADO`;
+    var apiUrl: string = `https://opensheet.elk.sh/11QYOWYLjPAppfJ5uDXPwQyt6nxnwQnKDcSYZh3nffS0/RESULTADO`;
     try {
-      const response = await fetch(
-        apiUrl
-      );
+      const response = await fetch(apiUrl);
       if (!response.ok) throw new Error("Error al cargar datos");
 
       const jsonData = await response.json();
+
+      const totalRow = jsonData.find((row: any) => row.Recinto === "TOTAL");
+      if (totalRow) {
+        setPorTotal(Number(totalRow.POR) || 0);
+      }
+
       const formattedData: ElectoralData[] = jsonData
         .filter((row: any) => row.Recinto && row.Recinto !== "TOTAL")
         .map((row: any) => ({
@@ -80,9 +87,10 @@ export default function ChartsSection() {
           mda: Number(row.MDA) || 0,
           blancos: Number(row.BLANCOS) || 0,
           nulos: Number(row.NULOS) || 0,
+          porcentaje: Number(row.POR) || 0,
         }));
 
-        console.log("Datos formateados:", formattedData);
+      console.log("Datos formateados:", formattedData);
 
       if (formattedData.length === 0)
         throw new Error("No se encontraron recintos.");
@@ -90,10 +98,42 @@ export default function ChartsSection() {
       setData(formattedData);
     } catch (err: any) {
       console.error(err);
-      setError("Error cargando datos desde Google Sheets. Usando datos de ejemplo.",);
+      setError(
+        "Error cargando datos desde Google Sheets. Usando datos de ejemplo.",
+      );
       setData([
-        { recinto: "U. E. Manuela Rojas", fsutpc: 400, libre: 350, upp: 25, mts: 50, sumate: 35, aupp: 50, ngp: 50, fri: 50, mnr: 50, mda: 250, blancos: 20, nulos: 10},
-        { recinto: "U. E. Simon Bolivar", fsutpc: 400, libre: 350, upp: 25, mts: 50, sumate: 35, aupp: 50, ngp: 50, fri: 50, mnr: 50, mda: 250, blancos: 20, nulos: 10},
+        {
+          recinto: "U. E. Manuela Rojas",
+          fsutpc: 400,
+          libre: 350,
+          upp: 25,
+          mts: 50,
+          sumate: 35,
+          aupp: 50,
+          ngp: 50,
+          fri: 50,
+          mnr: 50,
+          mda: 250,
+          blancos: 20,
+          nulos: 10,
+                    porcentaje: 35,
+        },
+        {
+          recinto: "U. E. Simon Bolivar",
+          fsutpc: 400,
+          libre: 350,
+          upp: 25,
+          mts: 50,
+          sumate: 35,
+          aupp: 50,
+          ngp: 50,
+          fri: 50,
+          mnr: 50,
+          mda: 250,
+          blancos: 20,
+          nulos: 10,
+          porcentaje: 35,
+        },
       ]);
     } finally {
       setLoading(false);
@@ -121,11 +161,36 @@ export default function ChartsSection() {
       acc.nulos += Number(curr.nulos) || 0;
       return acc;
     },
-    {fsutpc:0 ,libre:0 ,upp:0 ,mts:0 ,sumate:0 ,aupp:0 ,ngp:0 ,fri:0 ,mnr:0 ,mda:0 ,blancos:0 ,nulos:0},
+    {
+      fsutpc: 0,
+      libre: 0,
+      upp: 0,
+      mts: 0,
+      sumate: 0,
+      aupp: 0,
+      ngp: 0,
+      fri: 0,
+      mnr: 0,
+      mda: 0,
+      blancos: 0,
+      nulos: 0,
+    },
   );
 
-  const totalGeneral = totals.fsutpc + totals.libre + totals.upp + totals.mts + totals.sumate + totals.aupp + totals.ngp + totals.fri + totals.mnr + totals.mda + totals.blancos + totals.nulos;
-/*
+  const totalGeneral =
+    totals.fsutpc +
+    totals.libre +
+    totals.upp +
+    totals.mts +
+    totals.sumate +
+    totals.aupp +
+    totals.ngp +
+    totals.fri +
+    totals.mnr +
+    totals.mda +
+    totals.blancos +
+    totals.nulos;
+  /*
   const toPercent = (value: number, total: number) =>
     total > 0 ? Math.round((value / total) * 100) : 0;
 
@@ -134,13 +199,13 @@ export default function ChartsSection() {
       ? `${toPercent(value, total)}%`
       : value.toLocaleString();
 */
-const toPercent = (value: number, total: number) =>
-  total > 0 ? parseFloat(((value / total) * 100).toFixed(2)) : 0;
+  const toPercent = (value: number, total: number) =>
+    total > 0 ? parseFloat(((value / total) * 100).toFixed(2)) : 0;
 
-const displayValue = (value: number, total?: number) =>
-  showPercent && total && total > 0
-    ? `${toPercent(value, total).toFixed(2)}%`
-    : value.toLocaleString();
+  const displayValue = (value: number, total?: number) =>
+    showPercent && total && total > 0
+      ? `${toPercent(value, total).toFixed(2)}%`
+      : value.toLocaleString();
 
   const tooltipCallback = {
     callbacks: {
@@ -151,7 +216,7 @@ const displayValue = (value: number, total?: number) =>
     },
   };
 
-/*
+  /*
   const chartOption = {
     responsive: true,
     maintainAspectRatio: false,
@@ -162,68 +227,73 @@ const displayValue = (value: number, total?: number) =>
   };
 */
 
-const pieOption: ChartOptions<"pie"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: true, position: "bottom" },
-    datalabels: {
-      color: "#000000",
-      font: { size: 11, weight: "bold" },
-      formatter: (value: number, ctx) => {
-        // Calcular el total sumando todos los valores del dataset
-        const dataArr = ctx.chart.data.datasets[0].data as number[];
-        const total = dataArr.reduce((acc, val) => acc + val, 0);
-        if (total === 0 || value === 0) return "";  // ocultar ceros
-        const percentage = ((value * 100) / total).toFixed(2) + "%";
-        return showPercent
-          ? percentage                   // solo porcentaje
-          : `${value}\n${percentage}`;   // votos + porcentaje
+  const pieOption: ChartOptions<"pie"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: "bottom" },
+      datalabels: {
+        color: "#000000",
+        font: { size: 11, weight: "bold" },
+        formatter: (value: number, ctx) => {
+          // Calcular el total sumando todos los valores del dataset
+          const dataArr = ctx.chart.data.datasets[0].data as number[];
+          const total = dataArr.reduce((acc, val) => acc + val, 0);
+          if (total === 0 || value === 0) return ""; // ocultar ceros
+          const percentage = ((value * 100) / total).toFixed(2) + "%";
+          return showPercent
+            ? percentage // solo porcentaje
+            : `${value}\n${percentage}`; // votos + porcentaje
+        },
       },
     },
-  },
-};
+  };
 
   const chartOptions: ChartOptions<"bar"> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    datalabels: {
-      anchor: "end",
-      align: "end",
-      offset: 2,
-      font: { size: 9, weight: "bold" },
-      color: "#333",
-      formatter: (value: number) =>
-        value > 0
-          ? showPercent
-            ? `${value.toFixed(1)}%`
-            : `${value}`
-          : "",
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      grace: "15%",
-      ticks: {
-        callback: (val) => (showPercent ? `${val}%` : val),
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: "end",
+        align: "end",
+        offset: 2,
+        font: { size: 9, weight: "bold" },
+        color: "#333",
+        formatter: (value: number) =>
+          value > 0 ? (showPercent ? `${value.toFixed(1)}%` : `${value}`) : "",
       },
     },
-  },
-};
-
-
-
-
+    scales: {
+      y: {
+        beginAtZero: true,
+        grace: "15%",
+        ticks: {
+          callback: (val) => (showPercent ? `${val}%` : val),
+        },
+      },
+    },
+  };
 
   const pieGeneralData = {
-    labels: ["FSUTPC","LIBRE","UPP","MTS","SUMATE","AUPP","NGP","FRI","MNR","MDA","BLANCOS","NULOS"],
+    labels: [
+      "FSUTPC",
+      "LIBRE",
+      "UPP",
+      "MTS",
+      "SUMATE",
+      "AUPP",
+      "NGP",
+      "FRI",
+      "MNR",
+      "MDA",
+      "BLANCOS",
+      "NULOS",
+    ],
     datasets: [
       {
         data: showPercent
-          ? [              
+          ? [
               toPercent(totals.fsutpc, totalGeneral),
               toPercent(totals.libre, totalGeneral),
               toPercent(totals.upp, totalGeneral),
@@ -237,8 +307,34 @@ const pieOption: ChartOptions<"pie"> = {
               toPercent(totals.blancos, totalGeneral),
               toPercent(totals.nulos, totalGeneral),
             ]
-          : [totals.fsutpc, totals.libre, totals.upp, totals.mts, totals.sumate, totals.aupp, totals.ngp, totals.fri, totals.mnr, totals.mda, totals.blancos, totals.nulos],
-        backgroundColor: ["#5c9743","#E11D48","#025744","#006d36","#5e2572","#663d2b","#16a7e0","#014995","#ff84b0","#fcbf28","#ffffff","#777777"],
+          : [
+              totals.fsutpc,
+              totals.libre,
+              totals.upp,
+              totals.mts,
+              totals.sumate,
+              totals.aupp,
+              totals.ngp,
+              totals.fri,
+              totals.mnr,
+              totals.mda,
+              totals.blancos,
+              totals.nulos,
+            ],
+        backgroundColor: [
+          "#5c9743",
+          "#E11D48",
+          "#025744",
+          "#006d36",
+          "#5e2572",
+          "#663d2b",
+          "#16a7e0",
+          "#014995",
+          "#ff84b0",
+          "#fcbf28",
+          "#ffffff",
+          "#777777",
+        ],
         borderWidth: 3,
         borderColor: "#F9FAFB",
       },
@@ -274,11 +370,17 @@ const pieOption: ChartOptions<"pie"> = {
             <button
               onClick={fetchData}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#416972] to-[#5f8a8d] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition disabled:opacity-50">
-              <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}/>
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#416972] to-[#5f8a8d] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
+              />
               Actualizar Datos
             </button>
-            <button onClick={handleTogglePercent} className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-[#416972] text-[#416972] font-semibold rounded-lg hover:bg-[#416972]/10 transition">
+            <button
+              onClick={handleTogglePercent}
+              className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-[#416972] text-[#416972] font-semibold rounded-lg hover:bg-[#416972]/10 transition"
+            >
               {showPercent ? (
                 <Hash className="w-5 h-5" />
               ) : (
@@ -306,143 +408,216 @@ const pieOption: ChartOptions<"pie"> = {
             <div className="bg-white/80 rounded-2xl shadow-lg p-6 mb-4">
               <h3 className="text-2xl font-bold text-[#416972] mb-2 text-center">
                 Resumen General
+                <span className="text-base font-medium text-gray-500">
+                  - Actas computadas:{" "}
+                  <strong className="text-[#416972]">
+                    {porTotal.toFixed(2)}%
+                  </strong>
+                </span>
               </h3>
               {/* FSUTPC,LIBRE,UPP,MTS,APB-SUMATE,AUPP,NGP,FRI,MNR,MDA */}
               <div className="grid grid-cols-2 md:grid-cols-6 gap-5 text-center">
-                <div className="p-4 bg-[#5c9743]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#5c9743]">FSUTPC</h4>
-                  <p className="text-3xl font-bold text-[#5c9743] mt-1">
+                <div className="p-4 bg-[#5c9743]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#5c9743]">
+                    FSUTPC
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#5c9743] break-all leading-tight">
                     {displayValue(totals.fsutpc, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-4 bg-red-100 rounded-xl">
-                  <h4 className="text-lg font-semibold text-red-800">LIBRE</h4>
-                  <p className="text-3xl font-bold text-red-800 mt-1">
+                <div className="p-4 bg-red-100 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-red-800">
+                    LIBRE
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-red-800 break-all leading-tight">
                     {displayValue(totals.libre, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-6 bg-[#025744]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#025744]">UPP</h4>
-                  <p className="text-3xl font-bold text-[#025744] mt-1">
+                <div className="p-6 bg-[#025744]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#025744]">
+                    UPP
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#025744] break-all leading-tight">
                     {displayValue(totals.upp, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-6 bg-[#006d36]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#006d36]">MTS</h4>
-                  <p className="text-3xl font-bold text-[#006d36] mt-1">
+                <div className="p-6 bg-[#006d36]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#006d36]">
+                    MTS
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#006d36] break-all leading-tight">
                     {displayValue(totals.mts, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-6 bg-[#5e2572]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#5e2572]">SUMATE</h4>
-                  <p className="text-3xl font-bold text-[#5e2572] mt-1">
+                <div className="p-6 bg-[#5e2572]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#5e2572]">
+                    SUMATE
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#5e2572] break-all leading-tight">
                     {displayValue(totals.sumate, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-6 bg-[#663d2b]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#663d2b]">AUPP</h4>
-                  <p className="text-3xl font-bold text-[#663d2b] mt-1">
+                <div className="p-6 bg-[#663d2b]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#663d2b]">
+                    AUPP
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#663d2b] break-all leading-tight">
                     {displayValue(totals.aupp, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-6 bg-[#16a7e0]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#16a7e0]">NGP</h4>
-                  <p className="text-3xl font-bold text-[#16a7e0] mt-1">
+                <div className="p-6 bg-[#16a7e0]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#16a7e0]">
+                    NGP
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#16a7e0] break-all leading-tight">
                     {displayValue(totals.ngp, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-6 bg-[#014995]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#014995]">FRI</h4>
-                  <p className="text-3xl font-bold text-[#014995] mt-1">
+                <div className="p-6 bg-[#014995]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#014995]">
+                    FRI
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#014995] break-all leading-tight">
                     {displayValue(totals.fri, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-6 bg-[#ff84b0]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#ff84b0]">MNR</h4>
-                  <p className="text-3xl font-bold text-[#ff84b0] mt-1">
+                <div className="p-6 bg-[#ff84b0]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#ff84b0]">
+                    MNR
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#ff84b0] break-all leading-tight">
                     {displayValue(totals.mnr, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-6 bg-[#fcbf28]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#fcbf28]">MDA</h4>
-                  <p className="text-3xl font-bold text-[#fcbf28] mt-1">
+                <div className="p-6 bg-[#fcbf28]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#fcbf28]">
+                    MDA
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#fcbf28] break-all leading-tight">
                     {displayValue(totals.mda, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-4 bg-[#000000]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-[#000000]">BLANCO</h4>
-                  <p className="text-3xl font-bold text-[#000000] mt-1">
+                <div className="p-4 bg-[#000000]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-[#000000]">
+                    BLANCO
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-[#000000] break-all leading-tight">
                     {displayValue(totals.blancos, totalGeneral)}
                   </p>
                 </div>
 
-                <div className="p-4 bg-[#7f7c7c]/10 rounded-xl">
-                  <h4 className="text-lg font-semibold text-gray-800">NULO</h4>
-                  <p className="text-3xl font-bold text-gray-800 mt-1">
+                <div className="p-4 bg-[#7f7c7c]/10 rounded-xl min-w-0 overflow-hidden">
+                  <h4 className="text-base md:text-lg font-semibold text-gray-800">
+                    NULO
+                  </h4>
+                  <p className="mt-1 text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 break-all leading-tight">
                     {displayValue(totals.nulos, totalGeneral)}
                   </p>
                 </div>
               </div>
             </div>
 
-                        {/* TORTA */}
-                        <CobijaPie
-                          totals={totals}
-                          totalGeneral={totalGeneral}
-                          showPercent={showPercent}
-                          chartKey={chartKey}
-                        />
-                        {/* BARRA */}
-                        <CobijaBarra
-                          totals={totals}
-                          totalGeneral={totalGeneral}
-                          showPercent={showPercent}
-                          chartKey={chartKey}
-                        />
-            
-            
-            
-            
+            {/* BARRA */}
+            <CobijaBarra
+              totals={totals}
+              totalGeneral={totalGeneral}
+              showPercent={showPercent}
+              chartKey={chartKey}
+            />
+
+            <CobijaConcejales totals={totals} totalGeneral={totalGeneral} />
+
             {/* Comparación por provincia */}
             <h3 className="text-2xl font-bold text-[#416972] mb-8 text-center">
               Comparación por Recintos en Municipio Cobija
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
               {data.map((prov, i) => {
-                const totalProv = prov.fsutpc + prov.libre + prov.upp + prov.mts + prov.sumate + prov.aupp + prov.ngp + prov.fri + prov.mnr + prov.mda + prov.blancos + prov.nulos;
+                const totalProv =
+                  prov.fsutpc +
+                  prov.libre +
+                  prov.upp +
+                  prov.mts +
+                  prov.sumate +
+                  prov.aupp +
+                  prov.ngp +
+                  prov.fri +
+                  prov.mnr +
+                  prov.mda +
+                  prov.blancos +
+                  prov.nulos;
                 const values = showPercent
                   ? [
-                    toPercent(prov.fsutpc, totalProv),
-                    toPercent(prov.libre, totalProv),
-                    toPercent(prov.upp, totalProv),
-                    toPercent(prov.mts, totalProv),
-                    toPercent(prov.sumate, totalProv),
-                    toPercent(prov.aupp, totalProv),
-                    toPercent(prov.ngp, totalProv),
-                    toPercent(prov.fri, totalProv),
-                    toPercent(prov.mnr, totalProv),
-                    toPercent(prov.mda, totalProv),
-                    toPercent(prov.blancos, totalProv),
-                    toPercent(prov.nulos, totalProv),
+                      toPercent(prov.fsutpc, totalProv),
+                      toPercent(prov.libre, totalProv),
+                      toPercent(prov.upp, totalProv),
+                      toPercent(prov.mts, totalProv),
+                      toPercent(prov.sumate, totalProv),
+                      toPercent(prov.aupp, totalProv),
+                      toPercent(prov.ngp, totalProv),
+                      toPercent(prov.fri, totalProv),
+                      toPercent(prov.mnr, totalProv),
+                      toPercent(prov.mda, totalProv),
+                      toPercent(prov.blancos, totalProv),
+                      toPercent(prov.nulos, totalProv),
                     ]
-                  : [prov.fsutpc,prov.libre,prov.upp,prov.mts,prov.sumate,prov.aupp,prov.ngp,prov.fri,prov.mnr,prov.mda,prov.blancos,prov.nulos]
-                const barData = {                  
-                  labels: ["FSUTPC", "LIBRE", "UPP", "MTS", "SUMATE", "AUPP", "NGP", "FRI", "MNR", "MDA", "BLANCO", "NULO"],
+                  : [
+                      prov.fsutpc,
+                      prov.libre,
+                      prov.upp,
+                      prov.mts,
+                      prov.sumate,
+                      prov.aupp,
+                      prov.ngp,
+                      prov.fri,
+                      prov.mnr,
+                      prov.mda,
+                      prov.blancos,
+                      prov.nulos,
+                    ];
+                const barData = {
+                  labels: [
+                    "FSUTPC",
+                    "LIBRE",
+                    "UPP",
+                    "MTS",
+                    "SUMATE",
+                    "AUPP",
+                    "NGP",
+                    "FRI",
+                    "MNR",
+                    "MDA",
+                    "BLANCO",
+                    "NULO",
+                  ],
                   datasets: [
                     {
                       label: prov.recinto,
                       data: values,
-                      backgroundColor: ["#5c9743","#E11D48","#025744","#006d36","#5e2572","#663d2b","#16a7e0","#014995","#ff84b0","#fcbf28","#dbd2d2","#777777"],
+                      backgroundColor: [
+                        "#5c9743",
+                        "#E11D48",
+                        "#025744",
+                        "#006d36",
+                        "#5e2572",
+                        "#663d2b",
+                        "#16a7e0",
+                        "#014995",
+                        "#ff84b0",
+                        "#fcbf28",
+                        "#dbd2d2",
+                        "#777777",
+                      ],
                     },
                   ],
                 };
@@ -453,20 +628,23 @@ const pieOption: ChartOptions<"pie"> = {
                     className="bg-white/80 rounded-xl shadow-md hover:shadow-lg transition p-5"
                   >
                     <h4 className="text-lg md:text-xl font-bold text-center text-gray-800 mb-4">
-                      {prov.recinto}
+                      {prov.recinto}{" "}
+                      <span className="text-sm font-medium text-[#416972]">
+                        ({prov.porcentaje}%)
+                      </span>
+
                     </h4>
                     <div className="h-[300px] md:h-72">
-                      <Bar data={barData} options={chartOptions} plugins={[ChartDataLabels]} />
+                      <Bar
+                        data={barData}
+                        options={chartOptions}
+                        plugins={[ChartDataLabels]}
+                      />
                     </div>
                   </div>
                 );
               })}
             </div>
-
-
-
-
-
           </>
         )}
       </div>

@@ -24,16 +24,18 @@ npm start
 npm run dev
 npm run build
 
+********************
 npm install gh-pages
 
 npm run deploy
-****
+********************
 dar error eliminar node modules
+
 npm install
 npm run deploy
 
+********************
 npx -y react-doctor
-
 
 ALCALDE
 /* https://docs.google.com/spreadsheets/d/1soGygtdKplYlNnf1d4bjeb4F-QH0I8EnCgKejgvhbqc/edit?usp=sharing */
@@ -44,8 +46,7 @@ CONSEJAL
 
 https://opensheet.elk.sh/1VE-roYCzeG-ZnbflnJF8Dj1ai3I3FSJcBLj619UhfQU/RESULTADO
 
-
 GOBERNACION
-/* https://docs.google.com/spreadsheets/d/1nZ1Zv3wLNY7szammACRPhm2NqcxeAJ3b6GuoALHUby0/edit?usp=sharing */
+/* https://docs.google.com/spreadsheets/d/1-XblYY56wt4VtFnUy0AAKes2jpe7XY2ZWIWhy1wo_oI/edit?usp=sharing */
 
-https://opensheet.elk.sh/1nZ1Zv3wLNY7szammACRPhm2NqcxeAJ3b6GuoALHUby0/RESULTADO
+https://opensheet.elk.sh/1-XblYY56wt4VtFnUy0AAKes2jpe7XY2ZWIWhy1wo_oI/RESULTADO
